@@ -1,34 +1,91 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useState } from "react";
+import TodoItem from "./Components/TodoItem";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [inputTodo, setInputTodo] = useState("");
+  const [todoList, setTodoList] = useState([]);
+  const [actions, setActions] = useState({ edit: false, item: "" });
+
+  const editTodoItem = () => {
+    if (!inputTodo) return alert("Please write something");
+    let localTodoList = [...todoList];
+    let index = localTodoList.findIndex((item) => {
+      return actions.item === item;
+    });
+    localTodoList[index] = inputTodo;
+    setTodoList(localTodoList);
+    setInputTodo("");
+    return setActions({ ...actions, ["edit"]: !actions["edit"], ["item"]: "" });
+  };
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+    return setInputTodo(value);
+  };
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (!inputTodo) return alert("Please write something!");
+    const checkDuplicated = todoList.find((item) => {
+      return inputTodo === item;
+    });
+    if (checkDuplicated) return alert("Item already exists!");
+    setTodoList([...todoList, inputTodo]);
+    return setInputTodo("");
+  };
+
+  const handleEdit = (e) => {
+    const text = e.target.parentElement.parentElement.childNodes[0].textContent;
+    setActions({ ...actions, ["edit"]: !actions["edit"], ["item"]: text });
+    console.log(text);
+    if (actions.edit) return setInputTodo("");
+    return setInputTodo(text);
+  };
+
+  const handleDelete = (e) => {
+    const text = e.target.parentElement.parentElement.childNodes[0].textContent;
+    console.log(text);
+    let localTodoList = [...todoList];
+    let index = localTodoList.findIndex((item) => {
+      return text === item;
+    });
+    localTodoList.splice(index, 1);
+    return setTodoList(localTodoList);
+  };
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <h1>To do List</h1>
+      <div className="">
+        <input
+          type="text"
+          name="todoInput"
+          id="todoInput"
+          value={inputTodo}
+          onChange={handleChange}
+        />
+        <button onClick={actions.edit ? editTodoItem : handleClick}>
+          {actions.edit ? "EDIT" : "ADD"}
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <ul className="todo__list">
+        {todoList &&
+          todoList.map((item, index) => {
+            return (
+              <TodoItem
+                key={index}
+                id={index}
+                item={item}
+                edit={actions.edit}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
+            );
+          })}
+      </ul>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

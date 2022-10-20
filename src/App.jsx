@@ -38,7 +38,6 @@ function App() {
   const handleEdit = (e) => {
     const text = e.target.parentElement.parentElement.childNodes[0].textContent;
     setActions({ ...actions, ["edit"]: !actions["edit"], ["item"]: text });
-    console.log(text);
     if (actions.edit) return setInputTodo("");
     return setInputTodo(text);
   };
